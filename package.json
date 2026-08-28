@@ -3,11 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build:plugin": "polici-plugin build plugins/ownership/plugin.ts --target x86_64-linux-gnu.2.36 --out plugins/ownership/runtime-linux-x64",
-    "lock:policy": "polici lock --repository . --file ci.pol --lockfile polici.lock --plugin plugins/ownership/manifest.json",
+    "build:plugin": "polici-plugin build plugins/ownership/plugin.ts --no-manifest --target x86_64-linux-gnu.2.36 --out plugins/ownership/runtime",
+    "lock:policy": "polici lock --repository . --file ci.pol --lockfile polici.lock --plugin plugins/ownership/plugin.ts",
     "validate:policy": "polici validate --repository . --file ci.pol --lockfile polici.lock"
   },
   "devDependencies": {
-    "polici": "1.0.1"
+    "polici": "1.0.2"
   }
 }

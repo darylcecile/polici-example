@@ -10,15 +10,17 @@ This repository is a minimal working example of [Polici](https://github.com/dary
 - Every service owner must be recognized by the custom `ownership@1` provider.
 - Pull requests may change only Markdown documentation or service records.
 
-The workflow always installs the immutable `polici@1.0.1` npm release. Polici loads `ci.pol` and `polici.lock` from the trusted pull-request base commit, evaluates the exact head tree, and obtains changed-file information from the built-in GitHub provider.
+The workflow always installs the immutable `polici@1.0.2` npm release. Polici loads `ci.pol` and `polici.lock` from the trusted pull-request base commit, evaluates the exact head tree, and obtains changed-file information from the built-in GitHub provider.
 
 ## Custom Plugin
 
 [`plugins/ownership/plugin.ts`](plugins/ownership/plugin.ts) is the source contract. It default-exports `definePlugin(...)`, uses `type.string()` and `type.function()`, and exports `Ownership.approved(owner)` for the policy.
 
-[`plugins/ownership/runtime.ts`](plugins/ownership/runtime.ts) default-exports `defineRuntime(plugin, { resolvers })`. The resolver receives a normal inferred `owner: string` and returns a boolean; the SDK owns wire values, framing, lifecycle, and continuations. `manifest.json` and `runtime-linux-x64` are generated outputs.
+[`plugins/ownership/runtime.ts`](plugins/ownership/runtime.ts) default-exports `defineRuntime(plugin, { resolvers })`. The resolver receives a normal inferred `owner: string` and returns a boolean; the SDK owns wire values, framing, lifecycle, and continuations. The extensionless `runtime` executable is the only generated output committed to this repository.
 
-CI executes the precompiled artifact after Polici verifies both its SHA-256 and the generated canonical manifest digest from `polici.lock`. The workflow uses `--trust-plugin ownership@1` to make this reviewed base-owned executable part of the workflow trusted computing base.
+Polici parses `plugin.ts` in memory through a closed declarative grammar during lock, validate, check, and LSP metadata loading. It never executes the contract module. The generated canonical manifest must match `polici.lock`, so `manifest.json` is unnecessary.
+
+CI executes the precompiled artifact after Polici verifies its SHA-256 and the in-memory canonical manifest digest from `polici.lock`. The workflow uses `--trust-plugin ownership@1` to make this reviewed base-owned executable part of the workflow trusted computing base.
 
 Rebuild and relock it from a trusted Linux x64 environment:
 
@@ -28,7 +30,7 @@ npm run build:plugin
 npm run lock:policy
 ```
 
-`build:plugin` imports the default exports, verifies every declared resolver, generates canonical `manifest.json`, generates the protocol entrypoint internally, and compiles it with the scriptc version shipped by `polici@1.0.1`.
+`build:plugin` imports the default exports, verifies every declared resolver, generates the protocol entrypoint internally, and compiles it with the scriptc version shipped by `polici@1.0.2`. The `--no-manifest` flag avoids writing unused generated metadata.
 
 ## GitHub Actions
 
@@ -43,7 +45,7 @@ To see it fail, open a pull request that changes an unrelated path or duplicates
 Install the published CLI:
 
 ```sh
-npm install --global polici@1.0.1
+npm install --global polici@1.0.2
 ```
 
 The GitHub-backed policy is designed for pull-request events. A core-only local syntax and type check can still be run with:
