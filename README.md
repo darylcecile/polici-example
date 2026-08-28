@@ -7,9 +7,30 @@ This repository is a minimal working example of [Polici](https://github.com/dary
 [`ci.pol`](ci.pol) checks every pull request against two rules:
 
 - JSON service records under `data/services/` must have unique IDs.
+- Every service owner must be recognized by the custom `ownership@1` provider.
 - Pull requests may change only Markdown documentation or service records.
 
 The workflow always installs the immutable `polici@1.0.0` npm release. Polici loads `ci.pol` and `polici.lock` from the trusted pull-request base commit, evaluates the exact head tree, and obtains changed-file information from the built-in GitHub provider.
+
+## Custom Plugin
+
+[`plugins/ownership/manifest.json`](plugins/ownership/manifest.json) is a static plugin contract. It exports `Ownership.approved(owner)`, which the policy calls for every service record.
+
+[`plugins/ownership/runtime.ts`](plugins/ownership/runtime.ts) is the TypeScript source. CI executes the precompiled `runtime-linux-x64` artifact; Polici verifies both its SHA-256 and the canonical manifest digest from `polici.lock` before launch. The workflow uses `--trust-plugin ownership@1` to make this reviewed base-owned executable part of the workflow trusted computing base.
+
+Rebuild and relock it from a trusted Linux x64 environment:
+
+```sh
+npx --yes scriptc@0.0.33 build plugins/ownership/runtime.ts \
+  --no-keep-c \
+  -o plugins/ownership/runtime-linux-x64
+
+polici lock \
+  --repository . \
+  --file ci.pol \
+  --lockfile polici.lock \
+  --plugin plugins/ownership/manifest.json
+```
 
 ## GitHub Actions
 

@@ -26,4 +26,9 @@ jobs:
       - name: Evaluate repository policy
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: polici check --repository . --file ci.pol --lockfile polici.lock
+        run: >-
+          polici check
+          --repository .
+          --file ci.pol
+          --lockfile polici.lock
+          --trust-plugin ownership@1
