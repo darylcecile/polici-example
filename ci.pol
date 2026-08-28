@@ -1,0 +1,19 @@
+using "github@1" as Git
+
+policy "example repository" {
+  services = Files("data/services/**/*.json").as(json)
+  changes = Git.changes("**/*")
+
+  rule "service IDs are unique" {
+    for each service in services {
+      require service.id unique in services.{ id }
+    }
+  }
+
+  rule "pull requests change documentation or service records only" {
+    require every changes.{
+      path matches "**/*.md" or
+      path matches "data/services/**/*.json"
+    }
+  }
+}

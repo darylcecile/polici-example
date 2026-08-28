@@ -1,0 +1,5 @@
+{
+  "polici.binary": "polici",
+  "polici.args": ["lsp", "--stdio"],
+  "polici.lockFile": "polici.lock"
+}

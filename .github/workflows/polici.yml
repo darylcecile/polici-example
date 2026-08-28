@@ -1,0 +1,29 @@
+name: Polici
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: read
+  statuses: read
+
+jobs:
+  policy:
+    name: Policy
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out the complete repository history
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install the immutable Polici release
+        run: npm install --global --ignore-scripts polici@1.0.0
+
+      - name: Evaluate repository policy
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: polici check --repository . --file ci.pol --lockfile polici.lock
