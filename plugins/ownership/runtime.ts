@@ -16,7 +16,7 @@ if (type === "initialize") {
     id,
     implementation: { name: "ownership", version: "1.0.0" },
     capabilities: [],
-    continuation: "calls:0",
+    continuation: "calls-0",
   });
 } else if (type === "call") {
   const calls = continuationCalls(message.continuation);
@@ -31,7 +31,7 @@ if (type === "initialize") {
     type: "result",
     id,
     value: { tag: "boolean", value: value === "frontend" || value === "platform" },
-    continuation: `calls:${calls + 1}`,
+    continuation: `calls-${calls + 1}`,
   });
 } else if (type === "shutdown") {
   continuationCalls(message.continuation);
@@ -42,8 +42,8 @@ if (type === "initialize") {
 
 function continuationCalls(value: unknown): number {
   const continuation = requiredString(value, "continuation");
-  if (!/^calls:[0-9]+$/.test(continuation)) throw new Error("Unexpected runtime continuation");
-  const calls = Number(continuation.slice("calls:".length));
+  if (!/^calls-[0-9]+$/.test(continuation)) throw new Error("Unexpected runtime continuation");
+  const calls = Number(continuation.slice("calls-".length));
   if (!Number.isSafeInteger(calls)) throw new Error("Invalid runtime continuation");
   return calls;
 }
