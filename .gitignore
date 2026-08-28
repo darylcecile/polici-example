@@ -1,3 +1,4 @@
 .DS_Store
 .polici/
 node_modules/
+plugins/*/manifest.json
