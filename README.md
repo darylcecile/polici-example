@@ -65,3 +65,5 @@ curl --fail --location --output polici-language.vsix \
   https://github.com/darylcecile/polici/releases/download/v1.0.0/polici-language.vsix
 code --install-extension polici-language.vsix
 ```
+
+The custom ownership plugin is exercised by this pull request.
