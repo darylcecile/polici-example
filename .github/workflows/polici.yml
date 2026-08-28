@@ -21,7 +21,7 @@ jobs:
           persist-credentials: false
 
       - name: Install the immutable Polici release
-        run: npm install --global --ignore-scripts polici@1.0.0
+        run: npm install --global --ignore-scripts polici@1.0.1
 
       - name: Evaluate repository policy
         env:
