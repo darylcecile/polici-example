@@ -10,27 +10,25 @@ This repository is a minimal working example of [Polici](https://github.com/dary
 - Every service owner must be recognized by the custom `ownership@1` provider.
 - Pull requests may change only Markdown documentation or service records.
 
-The workflow always installs the immutable `polici@1.0.0` npm release. Polici loads `ci.pol` and `polici.lock` from the trusted pull-request base commit, evaluates the exact head tree, and obtains changed-file information from the built-in GitHub provider.
+The workflow always installs the immutable `polici@1.0.1` npm release. Polici loads `ci.pol` and `polici.lock` from the trusted pull-request base commit, evaluates the exact head tree, and obtains changed-file information from the built-in GitHub provider.
 
 ## Custom Plugin
 
-[`plugins/ownership/manifest.json`](plugins/ownership/manifest.json) is a static plugin contract. It exports `Ownership.approved(owner)`, which the policy calls for every service record.
+[`plugins/ownership/plugin.ts`](plugins/ownership/plugin.ts) is the source contract. It default-exports `definePlugin(...)`, uses `type.string()` and `type.function()`, and exports `Ownership.approved(owner)` for the policy.
 
-[`plugins/ownership/runtime.ts`](plugins/ownership/runtime.ts) is the TypeScript source. CI executes the precompiled `runtime-linux-x64` artifact; Polici verifies both its SHA-256 and the canonical manifest digest from `polici.lock` before launch. The workflow uses `--trust-plugin ownership@1` to make this reviewed base-owned executable part of the workflow trusted computing base.
+[`plugins/ownership/runtime.ts`](plugins/ownership/runtime.ts) default-exports `defineRuntime(plugin, { resolvers })`. The resolver receives a normal inferred `owner: string` and returns a boolean; the SDK owns wire values, framing, lifecycle, and continuations. `manifest.json` and `runtime-linux-x64` are generated outputs.
+
+CI executes the precompiled artifact after Polici verifies both its SHA-256 and the generated canonical manifest digest from `polici.lock`. The workflow uses `--trust-plugin ownership@1` to make this reviewed base-owned executable part of the workflow trusted computing base.
 
 Rebuild and relock it from a trusted Linux x64 environment:
 
 ```sh
-npx --yes scriptc@0.0.33 build plugins/ownership/runtime.ts \
-  --no-keep-c \
-  -o plugins/ownership/runtime-linux-x64
-
-polici lock \
-  --repository . \
-  --file ci.pol \
-  --lockfile polici.lock \
-  --plugin plugins/ownership/manifest.json
+npm install
+npm run build:plugin
+npm run lock:policy
 ```
+
+`build:plugin` imports the default exports, verifies every declared resolver, generates canonical `manifest.json`, generates the protocol entrypoint internally, and compiles it with the scriptc version shipped by `polici@1.0.1`.
 
 ## GitHub Actions
 
@@ -45,7 +43,7 @@ To see it fail, open a pull request that changes an unrelated path or duplicates
 Install the published CLI:
 
 ```sh
-npm install --global polici@1.0.0
+npm install --global polici@1.0.1
 ```
 
 The GitHub-backed policy is designed for pull-request events. A core-only local syntax and type check can still be run with:
