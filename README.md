@@ -44,3 +44,5 @@ curl --fail --location --output polici-language.vsix \
   https://github.com/darylcecile/polici/releases/download/v1.0.0/polici-language.vsix
 code --install-extension polici-language.vsix
 ```
+
+This line was added by the workflow verification pull request.
